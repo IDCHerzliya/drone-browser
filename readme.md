@@ -2,7 +2,7 @@ Pet Drone
 ======
 The goal is to produce a drone that displays intention, feedback, and emotional state via visual 
 and audio cues. This currently includes body movement (drone's animation sequences) and 
-sound (drone's propellor sounds)
+sound (drone's propellor sounds).
 
 Utilizing LEDs might prove useful in the future.
 Currently modifying the browser UI so it's easier to use for Wizard of Oz experiments.
