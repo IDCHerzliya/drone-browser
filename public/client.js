@@ -1,5 +1,5 @@
 (function() {
-  var faye, keymap, speed;
+  var faye, keymap, speed, firstMove, directions;
   faye = new Faye.Client("/faye", {
     timeout: 120
   });
@@ -67,29 +67,29 @@
       ev: 'drone',
       action: 'land'
     },
-    49: {
+    84: {
       ev: 'animate',
-      action: 'flipAhead',
+      action: 'turnaround',
       duration: 15
     },
-    50: {
+    112: {
       ev: 'animate',
-      action: 'flipLeft',
+      action: 'theta30Deg', //forward
       duration: 15
     },
-    51: {
+    113: {
       ev: 'animate',
-      action: 'yawShake',
+      action: 'thetaM30Deg', //backward
       duration: 15
     },
-    52: {
+    114: {
       ev: 'animate',
-      action: 'doublePhiThetaMixed',
+      action: 'phi30Deg',
       duration: 15
     },
-    53: {
+    115: {
       ev: 'animate',
-      action: 'wave',
+      action: 'phiM30Deg',
       duration: 15
     },
     69: {
@@ -97,14 +97,41 @@
       action: 'disableEmergency'
     }
   };
+
+  //anticipation
+  // directions = {
+  //   87: 112, //front
+  //   83: 113, //back
+  //   65: 114, //left
+  //   68: 115  //right
+  // };
+
+  //same direction
+  directions = {
+    87: 113, //front
+    83: 112, //back
+    65: 115, //left
+    68: 114  //right
+  };
+
   speed = 0;
+  firstMove = true; 
   $(document).keydown(function(ev) {
     var evData;
     if (keymap[ev.keyCode] == null) {
       return;
-    }
+    }       
     ev.preventDefault();
-    speed = speed >= 1 ? 1 : speed + 0.08 / (1 - speed);
+    speed = speed >= 0.5 ? 0.5 : speed + 0.08 / (1 - speed);
+    if (firstMove && ev.keyCode in directions) {
+      firstMove = false;
+      evData = keymap[directions[ev.keyCode]];
+      return faye.publish("/drone/" + evData.ev, {
+        action: evData.action,
+        speed: speed,
+        duration: evData.duration
+      });
+    }  
     evData = keymap[ev.keyCode];
     return faye.publish("/drone/" + evData.ev, {
       action: evData.action,
@@ -114,6 +141,7 @@
   });
   $(document).keyup(function(ev) {
     speed = 0;
+    firstMove = true; 
     return faye.publish("/drone/drone", {
       action: 'stop'
     });
