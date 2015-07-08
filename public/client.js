@@ -92,6 +92,11 @@
       action: 'phiM30Deg',
       duration: 15
     },
+    89: {
+      ev: 'animateLeds',
+      action: 'blinkGreen',
+      duration: 3000
+    },
     69: {
       ev: 'drone',
       action: 'disableEmergency'

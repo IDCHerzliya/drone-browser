@@ -1,5 +1,5 @@
 (function() {
-  var app, currentImg, drone, express, faye, imageSendingPaused, path, server, socket;
+  var app, drone, express, faye, path, server, socket;
   express = require("express");
   faye = require("faye");
   path = require("path");
@@ -27,6 +27,10 @@
     console.log('animate', cmd);
     return drone.animate(cmd.action, cmd.duration);
   });
+  // socket.subscribe("/drone/animateLeds", function(cmd) {
+  //   console.log('animateLeds', cmd);
+  //   return drone.animateLeds(cmd.action, cmd.duration);
+  // });
   socket.subscribe("/drone/drone", function(cmd) {
     var _name;
     console.log('drone command: ', cmd);
@@ -35,26 +39,26 @@
   server.listen(app.get("port"), function() {
     return console.log("Express server listening on port " + app.get("port"));
   });
-  currentImg = null;
+  // var currentImg = null;
   drone.on('navdata', function(data) {
     return socket.publish("/drone/navdata", data);
   });
-  imageSendingPaused = false;
-  drone.createPngStream().on("data", function(frame) {
-    currentImg = frame;
-    if (imageSendingPaused) {
-      return;
-    }
-    socket.publish("/drone/image", "/image/" + (Math.random()));
-    imageSendingPaused = true;
-    return setTimeout((function() {
-      return imageSendingPaused = false;
-    }), 100);
-  });
-  app.get("/image/:id", function(req, res) {
-    res.writeHead(200, {
-      "Content-Type": "image/png"
-    });
-    return res.end(currentImg, "binary");
-  });
+  // var imageSendingPaused = false;
+  // drone.createPngStream().on("data", function(frame) {
+  //   currentImg = frame;
+  //   if (imageSendingPaused) {
+  //     return;
+  //   }
+  //   socket.publish("/drone/image", "/image/" + (Math.random()));
+  //   imageSendingPaused = true;
+  //   return setTimeout((function() {
+  //     return imageSendingPaused = false;
+  //   }), 100);
+  // });
+  // app.get("/image/:id", function(req, res) {
+  //   res.writeHead(200, {
+  //     "Content-Type": "image/png"
+  //   });
+  //   return res.end(currentImg, "binary");
+  // });
 }).call(this);
