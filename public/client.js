@@ -85,16 +85,16 @@
     114: {
       ev: 'animate',
       action: 'phi30Deg',
-      duration: 15
+      duration: 500
     },
     115: {
       ev: 'animate',
       action: 'phiM30Deg',
-      duration: 15
+      duration: 500
     },
     89: {
       ev: 'animateLeds',
-      action: 'blinkGreen',
+      action: 'blinkGreenRed',
       duration: 3000
     },
     69: {
@@ -104,20 +104,20 @@
   };
 
   //anticipation
-  // directions = {
-  //   87: 112, //front
-  //   83: 113, //back
-  //   65: 114, //left
-  //   68: 115  //right
-  // };
+  directions = {
+    87: 112, //front
+    83: 113, //back
+    65: 114, //left
+    68: 115  //right
+  };
 
   //same direction
-  directions = {
-    87: 113, //front
-    83: 112, //back
-    65: 115, //left
-    68: 114  //right
-  };
+  // directions = {
+  //   87: 113, //front
+  //   83: 112, //back
+  //   65: 115, //left
+  //   68: 114  //right
+  // };
 
   speed = 0;
   firstMove = true; 
