@@ -1,5 +1,7 @@
 (function() {
-  var faye, keymap, speed, firstMove, directions;
+  var faye, keymap, speed, firstMove, directions, hz;
+  var LED_KEY = 89;
+  var MAX_SPEED = 0.3;
   faye = new Faye.Client("/faye", {
     timeout: 120
   });
@@ -85,17 +87,18 @@
     114: {
       ev: 'animate',
       action: 'phi30Deg',
-      duration: 500
+      duration: 300
     },
     115: {
       ev: 'animate',
       action: 'phiM30Deg',
-      duration: 500
+      duration: 300
     },
     89: {
       ev: 'animateLeds',
       action: 'blinkGreenRed',
-      duration: 3000
+      hz: 5,
+      duration: 3
     },
     69: {
       ev: 'drone',
@@ -127,7 +130,7 @@
       return;
     }       
     ev.preventDefault();
-    speed = speed >= 0.5 ? 0.5 : speed + 0.08 / (1 - speed);
+    speed = speed >= MAX_SPEED ? MAX_SPEED : speed + 0.08 / (1 - speed);
     if (firstMove && ev.keyCode in directions) {
       firstMove = false;
       evData = keymap[directions[ev.keyCode]];
@@ -138,6 +141,13 @@
       });
     }  
     evData = keymap[ev.keyCode];
+    if (ev.keyCode == LED_KEY) {
+      return faye.publish("/drone/" + evData.ev, {
+        action: evData.action,
+        hz: evData.hz,
+        duration: evData.duration
+      });
+    };
     return faye.publish("/drone/" + evData.ev, {
       action: evData.action,
       speed: speed,
@@ -154,7 +164,7 @@
   $("*[data-action]").on("mousedown", function(ev) {
     return faye.publish("/drone/" + $(this).attr("data-action"), {
       action: $(this).attr("data-param"),
-      speed: 0.3,
+      speed: parseFloat($("#speed").val()),
       duration: 1000 * parseInt($("#duration").val())
     });
   });
