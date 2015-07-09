@@ -29,7 +29,7 @@
   });
   socket.subscribe("/drone/animateLeds", function(cmd) {
     console.log('animateLeds', cmd);
-    return drone.animateLeds(cmd.action, cmd.duration);
+    return drone.animateLeds(cmd.action, cmd.hz, cmd.duration);
   });
   socket.subscribe("/drone/drone", function(cmd) {
     var _name;
@@ -44,17 +44,17 @@
     return socket.publish("/drone/navdata", data);
   });
   imageSendingPaused = false;
-  drone.createPngStream().on("data", function(frame) {
-    currentImg = frame;
-    if (imageSendingPaused) {
-      return;
-    }
-    socket.publish("/drone/image", "/image/" + (Math.random()));
-    imageSendingPaused = true;
-    return setTimeout((function() {
-      return imageSendingPaused = false;
-    }), 100);
-  });
+  // drone.createPngStream().on("data", function(frame) {
+  //   currentImg = frame;
+  //   if (imageSendingPaused) {
+  //     return;
+  //   }
+  //   socket.publish("/drone/image", "/image/" + (Math.random()));
+  //   imageSendingPaused = true;
+  //   return setTimeout((function() {
+  //     return imageSendingPaused = false;
+  //   }), 100);
+  // });
   app.get("/image/:id", function(req, res) {
     res.writeHead(200, {
       "Content-Type": "image/png"
