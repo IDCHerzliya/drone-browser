@@ -47,7 +47,11 @@
     <div class="buttons">
         <div>
             Max Speed
-            <input class="span1" id="speed" size="3" type="number" value="1" rel="tooltip" data-placement="bottom"> 
+            <input class="span1" id="speed" size="3" type="number" min="0" max="1" step="0.1" value="1" rel="tooltip"> 
+        </div>
+        <div>
+            Concentration Level
+            <input class="span1" id="concentration" size="3" type="number" min="0" max="1" step="0.05" value="1" rel="tooltip"> 
         </div>
         <div class="btn-toolbar">
             <div class="btn-group">

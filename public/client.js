@@ -2,6 +2,15 @@
   var faye, keymap, speed, firstMove, directions, hz;
   var LED_KEY = 89;
   var MAX_SPEED = parseFloat($("#speed").val());
+  var CONCENTRATION_LEVEL = parseFloat($("#concentration").val());
+  function reset() {
+    speed = 0;
+    firstMove = true; 
+    return faye.publish("/drone/drone", {
+      action: 'stop'
+    });
+  }
+
   faye = new Faye.Client("/faye", {
     timeout: 120
   });
@@ -127,6 +136,7 @@
   $(document).keydown(function(ev) {
     var evData;
     MAX_SPEED = parseFloat($("#speed").val());
+    CONCENTRATION_LEVEL = parseFloat($("#concentration").val());
     if (keymap[ev.keyCode] == null) {
       return;
     }       
@@ -149,6 +159,9 @@
         duration: evData.duration
       });
     };
+    if (Math.random() > CONCENTRATION_LEVEL) { 
+      reset();
+    };
     return faye.publish("/drone/" + evData.ev, {
       action: evData.action,
       speed: speed,
@@ -156,11 +169,7 @@
     });
   });
   $(document).keyup(function(ev) {
-    speed = 0;
-    firstMove = true; 
-    return faye.publish("/drone/drone", {
-      action: 'stop'
-    });
+    reset();
   });
   $("*[data-action]").on("mousedown", function(ev) {
     return faye.publish("/drone/" + $(this).attr("data-action"), {
@@ -177,3 +186,4 @@
   });
   $("*[rel=tooltip]").tooltip();
 }).call(this);
+
