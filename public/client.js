@@ -1,7 +1,7 @@
 (function() {
   var faye, keymap, speed, firstMove, directions, hz;
   var LED_KEY = 89;
-  var MAX_SPEED = 0.3;
+  var MAX_SPEED = parseFloat($("#speed").val());
   faye = new Faye.Client("/faye", {
     timeout: 120
   });
@@ -87,12 +87,12 @@
     114: {
       ev: 'animate',
       action: 'phi30Deg',
-      duration: 300
+      duration: 50
     },
     115: {
       ev: 'animate',
       action: 'phiM30Deg',
-      duration: 300
+      duration: 50
     },
     89: {
       ev: 'animateLeds',
@@ -126,6 +126,7 @@
   firstMove = true; 
   $(document).keydown(function(ev) {
     var evData;
+    MAX_SPEED = parseFloat($("#speed").val());
     if (keymap[ev.keyCode] == null) {
       return;
     }       
@@ -164,7 +165,7 @@
   $("*[data-action]").on("mousedown", function(ev) {
     return faye.publish("/drone/" + $(this).attr("data-action"), {
       action: $(this).attr("data-param"),
-      speed: parseFloat($("#speed").val()),
+      speed: 0.3,
       duration: 1000 * parseInt($("#duration").val())
     });
   });
