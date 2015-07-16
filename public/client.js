@@ -3,9 +3,6 @@
   var LED_KEY = 89;
   var MAX_SPEED = parseFloat($("#speed").val());
   var CONCENTRATION_LEVEL = parseFloat($("#concentration").val());
-  var RANDOM_MIN = 1; // in seconds
-  var RANDOM_MAX = 0.5; 
-  var MAX_MOVE = 10; // counter to prevent queueing of commands from sleep()
   function reset() {
     speed = 0;
     return faye.publish("/drone/drone", {
@@ -155,47 +152,39 @@
     ev.preventDefault();
     speed = speed >= MAX_SPEED ? MAX_SPEED : speed + 0.08 / (1 - speed);
     
-    if (moveCounter < MAX_MOVE) {
-      moveCounter++; // do we need moveCounter?
-      if (distract) {
-        var milliseconds = Math.floor(Math.random() * (RANDOM_MAX - RANDOM_MIN + 1) + RANDOM_MIN);
-        sleep(milliseconds * 1000);
-        distract = false;
-        reset();
-      }
-      if (firstMove && ev.keyCode in directions) {
-        firstMove = false;
-        evData = keymap[directions[ev.keyCode]];
-        return faye.publish("/drone/" + evData.ev, {
-          action: evData.action,
-          speed: speed,
-          duration: evData.duration
-        });
-      }  
-      evData = keymap[ev.keyCode];
-      if (ev.keyCode == LED_KEY) {
-        return faye.publish("/drone/" + evData.ev, {
-          action: evData.action,
-          hz: evData.hz,
-          duration: evData.duration
-        });
-      };
-      if (Math.random() > CONCENTRATION_LEVEL) { 
-        distract = true;
-        reset();
-      };
+    if (distract) {
+      return;
+    }
+    if (firstMove && ev.keyCode in directions) {
+      firstMove = false;
+      evData = keymap[directions[ev.keyCode]];
       return faye.publish("/drone/" + evData.ev, {
         action: evData.action,
         speed: speed,
         duration: evData.duration
-      }); 
-    } else {
-      moveCounter = 0;
+      });
+    }  
+    evData = keymap[ev.keyCode];
+    if (ev.keyCode == LED_KEY) {
+      return faye.publish("/drone/" + evData.ev, {
+        action: evData.action,
+        hz: evData.hz,
+        duration: evData.duration
+      });
+    };
+    if (Math.random() > CONCENTRATION_LEVEL) { 
+      distract = true;
       reset();
     };
+    return faye.publish("/drone/" + evData.ev, {
+      action: evData.action,
+      speed: speed,
+      duration: evData.duration
+    }); 
   });
   $(document).keyup(function(ev) {
     firstMove = true; 
+    distract = false;
     reset();
   });
   $("*[data-action]").on("mousedown", function(ev) {
