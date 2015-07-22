@@ -24,8 +24,19 @@
     return typeof drone[_name = cmd.action] === "function" ? drone[_name](cmd.speed) : void 0;
   });
   socket.subscribe("/drone/animate", function(cmd) {
-    console.log('animate', cmd);
-    return drone.animate(cmd.action, cmd.duration);
+    // console.log('animate', cmd);
+    // return drone.animate(cmd.action, cmd.duration);
+    console.log("HIJACK");
+    return drone
+      .after(500, function() {
+        this.animate('phiDance', 2000);
+        console.log("dance");
+      })
+      .after(4000, function() {
+        this.stop();
+        this.land();
+        console.log("land");
+      });
   });
   socket.subscribe("/drone/animateLeds", function(cmd) {
     console.log('animateLeds', cmd);
