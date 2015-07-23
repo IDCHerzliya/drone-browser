@@ -1,5 +1,7 @@
 Pet Drone
 ======
+This branch has different emotional profiles to test out.
+
 The goal is to produce a drone that displays intention, feedback, and emotional state via visual 
 and audio cues. This currently includes body movement (drone's animation sequences), LED patterns,
 and sound (drone's propellor sounds).
