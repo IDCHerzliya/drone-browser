@@ -1,4 +1,28 @@
 (function() {
+
+  // var profile;
+
+  var x = function() {
+      drone
+        .after(3000, function() {
+          this.animate('phiDance', 15);
+          console.log('happy!!!');
+        })
+        .after(1000, function() {
+          this.stop();
+          this.land();
+          console.log('land!!!');
+        });
+    }
+
+  goDirectMap = {
+    "happy": x
+  }
+
+
+
+  
+
   var app, currentImg, drone, express, faye, imageSendingPaused, path, server, socket;
   express = require("express");
   faye = require("faye");
@@ -24,28 +48,27 @@
     return typeof drone[_name = cmd.action] === "function" ? drone[_name](cmd.speed) : void 0;
   });
   socket.subscribe("/drone/animate", function(cmd) {
-    // console.log('animate', cmd);
-    // return drone.animate(cmd.action, cmd.duration);
-    console.log("HIJACK");
-    return drone
-      .after(500, function() {
-        this.animate('phiDance', 2000);
-        console.log("dance");
-      })
-      .after(4000, function() {
-        this.stop();
-        this.land();
-        console.log("land");
-      });
-  });
-  socket.subscribe("/drone/animateLeds", function(cmd) {
-    console.log('animateLeds', cmd);
-    return drone.animateLeds(cmd.action, cmd.hz, cmd.duration);
+    console.log('animate', cmd);
+    return drone.animate(cmd.action, cmd.duration);
   });
   socket.subscribe("/drone/drone", function(cmd) {
     var _name;
     console.log('drone command: ', cmd);
     return typeof drone[_name = cmd.action] === "function" ? drone[_name]() : void 0;
+  });
+  socket.subscribe("/profile", function(cmd) {
+    return console.log('profile: ', cmd);
+  });
+  socket.subscribe("/sequence", function(cmd) {
+    // return console.log('drone sequence: ', cmd);
+    console.log('drone sequence: ', cmd);
+    var profile = cmd.profile;
+    seqMap = {
+      "goDirect": goDirectMap[profile]
+    }
+    var seq = seqMap[cmd.seqName];
+    console.log('goDirectMap', typeof goDirectMap[cmd.profile]);
+    console.log('seq: ' + typeof seq)
   });
   server.listen(app.get("port"), function() {
     return console.log("Express server listening on port " + app.get("port"));
@@ -54,7 +77,7 @@
   drone.on('navdata', function(data) {
     return socket.publish("/drone/navdata", data);
   });
-  imageSendingPaused = false;
+  // imageSendingPaused = false;
   // drone.createPngStream().on("data", function(frame) {
   //   currentImg = frame;
   //   if (imageSendingPaused) {
@@ -66,10 +89,10 @@
   //     return imageSendingPaused = false;
   //   }), 100);
   // });
-  app.get("/image/:id", function(req, res) {
-    res.writeHead(200, {
-      "Content-Type": "image/png"
-    });
-    return res.end(currentImg, "binary");
-  });
+  // app.get("/image/:id", function(req, res) {
+  //   res.writeHead(200, {
+  //     "Content-Type": "image/png"
+  //   });
+  //   return res.end(currentImg, "binary");
+  // });
 }).call(this);

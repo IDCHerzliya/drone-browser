@@ -1,23 +1,7 @@
 (function() {
-  var faye, keymap, speed, firstMove, directions, hz, distract, moveCounter;
-  var LED_KEY = 89;
-  var MAX_SPEED = parseFloat($("#speed").val());
-  var CONCENTRATION_LEVEL = parseFloat($("#concentration").val());
-  function reset() {
-    speed = 0;
-    return faye.publish("/drone/drone", {
-      action: 'stop'
-    });
-  }
-  function sleep(milliseconds) {
-    var start = new Date().getTime();
-    for (var i = 0; i < 1e7; i++) {
-      if ((new Date().getTime() - start) > milliseconds){
-        break;
-      }
-    }
-  }
-
+  var faye, keymap, speed, profileMovement, seqMap;
+  var profile = null;
+  var maxSpeed = 1;
   faye = new Faye.Client("/faye", {
     timeout: 120
   });
@@ -44,154 +28,156 @@
       src: src
     });
   });
+
+  profileMovement = {
+    "happy": {
+      speed: 0.6,
+      duration: 1000
+    },
+    "grumpy": {
+      speed: 0.2,
+      duration: 500
+    }
+  }
+
+  seqMap = {
+    "goDirect": goDirectMap[profile]
+  }
+
   keymap = {
-    87: { //'w'
+    87: {
       ev: 'move',
       action: 'front'
     },
-    83: { //'s' 
+    83: {
       ev: 'move',
       action: 'back'
     },
-    65: { //'a'
+    65: {
       ev: 'move',
       action: 'left'
     },
-    68: { //'d'
+    68: {
       ev: 'move',
       action: 'right'
     },
-    38: { //'up'
+    38: {
       ev: 'move',
       action: 'up'
     },
-    40: { //'down'
+    40: {
       ev: 'move',
       action: 'down'
     },
-    37: { //'left'
+    37: {
       ev: 'move',
       action: 'counterClockwise'
     },
-    39: { //'right'
+    39: {
       ev: 'move',
       action: 'clockwise'
     },
-    32: { //'space'
+    32: {
       ev: 'drone',
       action: 'takeoff'
     },
-    27: { //'esc'
+    27: {
       ev: 'drone',
       action: 'land'
     },
-    84: { //'t'
+    49: {
       ev: 'animate',
-      action: 'turnaround',
+      action: 'flipAhead',
       duration: 15
     },
-    112: {
+    50: {
       ev: 'animate',
-      action: 'theta30Deg', //forward
-      duration: 30
+      action: 'flipLeft',
+      duration: 15
     },
-    113: {
+    51: {
       ev: 'animate',
-      action: 'thetaM30Deg', //backward
-      duration: 30
+      action: 'yawShake',
+      duration: 15
     },
-    114: {
+    52: {
       ev: 'animate',
-      action: 'phi30Deg',
-      duration: 30
+      action: 'doublePhiThetaMixed',
+      duration: 15
     },
-    115: {
+    53: {
       ev: 'animate',
-      action: 'phiM30Deg',
-      duration: 30
+      action: 'wave',
+      duration: 15
     },
-    89: { //'y'
-      ev: 'animateLeds',
-      action: 'blinkGreenRed',
-      hz: 5,
-      duration: 3
-    },
-    69: { //'e'
+    69: {
       ev: 'drone',
       action: 'disableEmergency'
     }
   };
-
-  //anticipation
-  directions = {
-    87: 112, //front
-    83: 113, //back
-    65: 114, //left
-    68: 115  //right
-  };
-
-  //same direction
-  // directions = {
-  //   87: 113, //front
-  //   83: 112, //back
-  //   65: 115, //left
-  //   68: 114  //right
-  // };
-
   speed = 0;
-  firstMove = true; 
-  distract = false;
-  moveCounter = 0;
   $(document).keydown(function(ev) {
     var evData;
-    MAX_SPEED = parseFloat($("#speed").val());
-    CONCENTRATION_LEVEL = parseFloat($("#concentration").val());
     if (keymap[ev.keyCode] == null) {
       return;
-    }       
-    ev.preventDefault();
-    speed = speed >= MAX_SPEED ? MAX_SPEED : speed + 0.08 / (1 - speed);
-    
-    if (distract) {
-      return;
     }
-    if (firstMove && ev.keyCode in directions) {
-      firstMove = false;
-      evData = keymap[directions[ev.keyCode]];
-      return faye.publish("/drone/" + evData.ev, {
-        action: evData.action,
-        speed: speed,
-        duration: evData.duration
-      });
-    }  
+    ev.preventDefault();
+    speed = speed >= maxSpeed ? maxSpeed : speed + 0.08 / (1 - speed);
     evData = keymap[ev.keyCode];
-    if (ev.keyCode == LED_KEY) {
-      return faye.publish("/drone/" + evData.ev, {
-        action: evData.action,
-        hz: evData.hz,
-        duration: evData.duration
-      });
-    };
-    if (Math.random() > CONCENTRATION_LEVEL) { 
-      distract = true;
-      reset();
-    };
     return faye.publish("/drone/" + evData.ev, {
       action: evData.action,
       speed: speed,
       duration: evData.duration
-    }); 
+    });
   });
   $(document).keyup(function(ev) {
-    firstMove = true; 
-    distract = false;
-    reset();
+    speed = 0;
+    return faye.publish("/drone/drone", {
+      action: 'stop'
+    });
   });
   $("*[data-action]").on("mousedown", function(ev) {
+    var movSpeed = profileMovement[profile].speed;
+    var movDur = profileMovement[profile].duration;
+    if ($(this).attr("data-mod") == "small") {
+      movDur /= 2; // movement duration half as long
+    }
     return faye.publish("/drone/" + $(this).attr("data-action"), {
       action: $(this).attr("data-param"),
-      speed: 0.3,
-      duration: 1000 * parseInt($("#duration").val())
+      speed: movSpeed,
+      duration: movDur
+    });
+  });
+  $("*[data-profile]").on("mousedown", function() {
+    profile = $(this).attr("data-profile");
+    document.getElementById("prof").innerHTML = profile;
+    maxSpeed = parseFloat($(this).attr("max-speed"));
+    return faye.publish("/profile", {
+      profile: profile,
+      maxSpeed: parseFloat($(this).attr("max-speed"))
+    });
+  });
+  $("*[data-sequence]").on("mousedown", function() {
+    if (profile == null) {
+      alert("pick profile");
+      return;
+    };
+    var seq = $(this).attr("data-sequence");
+    // var test2 = seqMap["goDirect"];
+    // alert(typeof test);
+    // seqMap = {
+    //   "goDirect": goDirectMap[profile]
+    // }
+
+    // var seqFn = seqMap[seq];
+    // alert("goDirectMap[profile] " + typeof goDirectMap[profile]); // typeof == function
+    // return faye.publish("/sequence", {
+    //   seqName: seq,
+    //   fn: goDirectMap[profile]
+    // });
+    return faye.publish("/sequence", {
+      seqName: seq,
+      profile: profile
     });
   });
   $("*[data-action]").on("mouseup", function(ev) {
@@ -202,4 +188,3 @@
   });
   $("*[rel=tooltip]").tooltip();
 }).call(this);
-
