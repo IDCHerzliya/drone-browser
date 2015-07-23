@@ -1,8 +1,7 @@
 (function() {
 
-  // var profile;
-
-  var x = function() {
+  goDirectMap = {
+    "happy": function() {
       drone
         .after(3000, function() {
           this.animate('phiDance', 15);
@@ -14,14 +13,7 @@
           console.log('land!!!');
         });
     }
-
-  goDirectMap = {
-    "happy": x
   }
-
-
-
-  
 
   var app, currentImg, drone, express, faye, imageSendingPaused, path, server, socket;
   express = require("express");
@@ -60,15 +52,15 @@
     return console.log('profile: ', cmd);
   });
   socket.subscribe("/sequence", function(cmd) {
-    // return console.log('drone sequence: ', cmd);
     console.log('drone sequence: ', cmd);
-    var profile = cmd.profile;
+
     seqMap = {
-      "goDirect": goDirectMap[profile]
+      "goDirect": goDirectMap[cmd.profile]
     }
+
     var seq = seqMap[cmd.seqName];
-    console.log('goDirectMap', typeof goDirectMap[cmd.profile]);
-    console.log('seq: ' + typeof seq)
+    console.log('seq: ' + typeof seq);
+    return seq();
   });
   server.listen(app.get("port"), function() {
     return console.log("Express server listening on port " + app.get("port"));
