@@ -32,16 +32,12 @@
   profileMovement = {
     "happy": {
       speed: 0.6,
-      duration: 1000
+      duration: 4000
     },
     "grumpy": {
       speed: 0.2,
-      duration: 500
+      duration: 2000
     }
-  }
-
-  seqMap = {
-    "goDirect": goDirectMap[profile]
   }
 
   keymap = {
@@ -157,12 +153,26 @@
       maxSpeed: parseFloat($(this).attr("max-speed"))
     });
   });
+  $("*[data-action]").on("mouseup", function(ev) {
+    return faye.publish("/drone/move", {
+      action: $(this).attr("data-param"),
+      speed: $(this).attr("data-action") === "move" ? 0 : void 0
+    });
+  });
   $("*[data-sequence]").on("mousedown", function() {
     if (profile == null) {
       alert("pick profile");
       return;
     };
+
+    seqMap = {
+      "goDirect": goDirectMap[profile]
+    }
+
     var seq = $(this).attr("data-sequence");
+    var seqFn = seqMap[seq];
+    var seqFnString = seqFn.toString();
+    // alert(typeof seqFn + ' : ' + seqFnString);
     // var test2 = seqMap["goDirect"];
     // alert(typeof test);
     // seqMap = {
@@ -175,16 +185,18 @@
     //   seqName: seq,
     //   fn: goDirectMap[profile]
     // });
+
     return faye.publish("/sequence", {
+      seqFn: seqFnString,
       seqName: seq,
       profile: profile
     });
   });
-  $("*[data-action]").on("mouseup", function(ev) {
-    return faye.publish("/drone/move", {
-      action: $(this).attr("data-param"),
-      speed: $(this).attr("data-action") === "move" ? 0 : void 0
-    });
-  });
+  // $("*[data-sequence]").on("mouseup", function(ev) { //need this if sequence doesn't end with stop
+  //   speed = 0;
+  //   return faye.publish("/drone/drone", {
+  //     action: 'stop'
+  //   });
+  // });
   $("*[rel=tooltip]").tooltip();
 }).call(this);
