@@ -29,14 +29,21 @@
     });
   });
 
+  var pickProfile = function () {
+    if (profile == null) {
+      alert("pick profile");
+      return;
+    };
+  }
+
   profileMovement = {
     "happy": {
       speed: 0.6,
-      duration: 4000
+      duration: 1000
     },
     "grumpy": {
       speed: 0.2,
-      duration: 2000
+      duration: 500
     }
   }
 
@@ -132,18 +139,40 @@
       action: 'stop'
     });
   });
+
+  var movData = {
+    speed: 0, 
+    duration: 0,
+    action: 0
+  };
+
   $("*[data-action]").on("mousedown", function(ev) {
-    var movSpeed = profileMovement[profile].speed;
-    var movDur = profileMovement[profile].duration;
+    pickProfile();
+    movData.speed = profileMovement[profile].speed;
+    movData.duration = profileMovement[profile].duration;
+    movData.param = $(this).attr("data-param");
+    movData.action = $(this).attr("data-action");
+    if ($(this).attr("data-mod") == "small") {
+      movData.duration /= 2; // movement duration half as long
+    }
+    return faye.publish("/drone/" + movData.action, {
+      duration: movData.duration,
+      action: movData.param,
+      speed: movData.speed,
+    });
+  });
+  $("*[data-action]").on("mouseup", function(ev) {
     if ($(this).attr("data-mod") == "small") {
       movDur /= 2; // movement duration half as long
     }
-    return faye.publish("/drone/" + $(this).attr("data-action"), {
-      action: $(this).attr("data-param"),
-      speed: movSpeed,
-      duration: movDur
-    });
+    setTimeout(function () {
+      return faye.publish("/drone/move", {
+        action: movData.param,
+        speed: movData.action === "move" ? 0 : void 0
+      })      
+      }, movData.duration);
   });
+
   $("*[data-profile]").on("mousedown", function() {
     profile = $(this).attr("data-profile");
     document.getElementById("prof").innerHTML = profile;
@@ -153,17 +182,8 @@
       maxSpeed: parseFloat($(this).attr("max-speed"))
     });
   });
-  $("*[data-action]").on("mouseup", function(ev) {
-    return faye.publish("/drone/move", {
-      action: $(this).attr("data-param"),
-      speed: $(this).attr("data-action") === "move" ? 0 : void 0
-    });
-  });
   $("*[data-sequence]").on("mousedown", function() {
-    if (profile == null) {
-      alert("pick profile");
-      return;
-    };
+    pickProfile();
 
     seqMap = {
       "goDirect": goDirectMap[profile]
