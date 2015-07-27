@@ -163,7 +163,7 @@
   });
   $("*[data-action]").on("mouseup", function(ev) {
     if ($(this).attr("data-mod") == "small") {
-      movDur /= 2; // movement duration half as long
+      movData.duration /= 2; // movement duration half as long
     }
     setTimeout(function () {
       return faye.publish("/drone/move", {
@@ -192,31 +192,11 @@
     var seq = $(this).attr("data-sequence");
     var seqFn = seqMap[seq];
     var seqFnString = seqFn.toString();
-    // alert(typeof seqFn + ' : ' + seqFnString);
-    // var test2 = seqMap["goDirect"];
-    // alert(typeof test);
-    // seqMap = {
-    //   "goDirect": goDirectMap[profile]
-    // }
-
-    // var seqFn = seqMap[seq];
-    // alert("goDirectMap[profile] " + typeof goDirectMap[profile]); // typeof == function
-    // return faye.publish("/sequence", {
-    //   seqName: seq,
-    //   fn: goDirectMap[profile]
-    // });
-
     return faye.publish("/sequence", {
       seqFn: seqFnString,
       seqName: seq,
       profile: profile
     });
   });
-  // $("*[data-sequence]").on("mouseup", function(ev) { //need this if sequence doesn't end with stop
-  //   speed = 0;
-  //   return faye.publish("/drone/drone", {
-  //     action: 'stop'
-  //   });
-  // });
   $("*[rel=tooltip]").tooltip();
 }).call(this);
