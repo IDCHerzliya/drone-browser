@@ -10,9 +10,13 @@ body {
     height: 360px;
 }
 #batteryProgress {
-    width: 640px;
-    margin: 0 auto;
-    margin-bottom: 10px;
+	width: 640px;
+	margin: 0 auto;
+	margin-bottom: 10px;
+}
+#counter {
+    margin-bottom: 0px;
+    width: 20px;
 }
 #stats {
     position: absolute;
