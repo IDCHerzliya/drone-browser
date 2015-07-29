@@ -29,10 +29,13 @@
     });
   });
 
+  var happyButtons = 
+    '<div class="btn-group"><button class="btn" data-action="animate" data-param="turnaround">Turnaround</button><button class="btn" data-action="animate" data-param="yawShake">Yaw Shake</button></div>';
+
+
   var pickProfile = function () {
     if (profile == null) {
-      alert("pick profile");
-      return;
+      return alert("pick profile");
     };
   }
 
@@ -143,8 +146,27 @@
   var movData = {
     speed: 0, 
     duration: 0,
-    action: 0
+    action: 0,
+    param: 0
   };
+
+
+  $("*[data-profile]").on("mousedown", function() {
+    profile = $(this).attr("data-profile");
+    document.getElementById("prof").innerHTML = profile;
+
+    if (profile == "happy") {
+      document.getElementById("happy-actions").innerHTML = happyButtons;
+    } else {
+       document.getElementById("happy-actions").innerHTML = "";
+    }
+
+    maxSpeed = parseFloat($(this).attr("max-speed"));
+    return faye.publish("/profile", {
+      profile: profile,
+      maxSpeed: parseFloat($(this).attr("max-speed"))
+    });
+  });
 
   $("*[data-action]").on("mousedown", function(ev) {
     pickProfile();
@@ -162,31 +184,30 @@
     });
   });
   $("*[data-action]").on("mouseup", function(ev) {
-    if ($(this).attr("data-mod") == "small") {
-      movData.duration /= 2; // movement duration half as long
-    }
-    setTimeout(function () {
+    if (movData.action == "move") {
+      setTimeout(function () {
       return faye.publish("/drone/move", {
         action: movData.param,
         speed: movData.action === "move" ? 0 : void 0
       })      
       }, movData.duration);
+    } else { //animate
+      return faye.publish("/drone/animate", {
+        action: movData.param,
+        duration: movData.duration
+      }) 
+    }  
   });
 
-  $("*[data-profile]").on("mousedown", function() {
-    profile = $(this).attr("data-profile");
-    document.getElementById("prof").innerHTML = profile;
-    maxSpeed = parseFloat($(this).attr("max-speed"));
-    return faye.publish("/profile", {
-      profile: profile,
-      maxSpeed: parseFloat($(this).attr("max-speed"))
-    });
-  });
   $("*[data-sequence]").on("mousedown", function() {
     pickProfile();
 
     seqMap = {
-      "goDirect": goDirectMap[profile]
+      "goDirect": goDirectMap[profile],
+      "land": landMap[profile],
+      "loiter": loiterMap[profile],
+      "stop": stopMap[profile],
+      "picture": pictureMap[profile]
     }
 
     var seq = $(this).attr("data-sequence");

@@ -38,7 +38,7 @@
   socket.subscribe("/sequence", function(cmd) {
     console.log('drone sequence: ' + cmd.profile + ' ' + cmd.seqName);
     eval(cmd.seqFn);
-    seq();
+    return seq();
   });
   server.listen(app.get("port"), function() {
     return console.log("Express server listening on port " + app.get("port"));
