@@ -1,4 +1,6 @@
 (function() {
+  var test = require('./public/test.js');
+
   var app, currentImg, drone, express, faye, imageSendingPaused, path, server, socket;
   express = require("express");
   faye = require("faye");
@@ -36,9 +38,12 @@
     return console.log('profile: ', cmd);
   });
   socket.subscribe("/sequence", function(cmd) {
-    console.log('drone sequence: ' + cmd.profile + ' ' + cmd.seqName);
-    eval(cmd.seqFn);
-    return seq();
+    console.log('drone sequence: ' + cmd.profile + ' ' + cmd.seq);
+    var fn = test.seqFn(cmd.seq, cmd.profile);
+    fn(drone);
+    test.reset(drone);
+    // eval(cmd.seqFn);
+    // return seq();
   });
   server.listen(app.get("port"), function() {
     return console.log("Express server listening on port " + app.get("port"));

@@ -29,10 +29,6 @@
     });
   });
 
-  var happyButtons = 
-    '<div class="btn-group"><button class="btn" data-action="animate" data-param="turnaround">Turnaround</button><button class="btn" data-action="animate" data-param="yawShake">Yaw Shake</button></div>';
-
-
   var pickProfile = function () {
     if (profile == null) {
       return alert("pick profile");
@@ -154,13 +150,6 @@
   $("*[data-profile]").on("mousedown", function() {
     profile = $(this).attr("data-profile");
     document.getElementById("prof").innerHTML = profile;
-
-    if (profile == "happy") {
-      document.getElementById("happy-actions").innerHTML = happyButtons;
-    } else {
-       document.getElementById("happy-actions").innerHTML = "";
-    }
-
     maxSpeed = parseFloat($(this).attr("max-speed"));
     return faye.publish("/profile", {
       profile: profile,
@@ -186,11 +175,12 @@
   $("*[data-action]").on("mouseup", function(ev) {
     if (movData.action == "move") {
       setTimeout(function () {
-      return faye.publish("/drone/move", {
-        action: movData.param,
-        speed: movData.action === "move" ? 0 : void 0
-      })      
-      }, movData.duration);
+        return faye.publish("/drone/move", {
+          action: movData.param,
+          speed: movData.action === "move" ? 0 : void 0
+        })      
+      }, 
+      movData.duration);
     } else { //animate
       return faye.publish("/drone/animate", {
         action: movData.param,
@@ -202,20 +192,14 @@
   $("*[data-sequence]").on("mousedown", function() {
     pickProfile();
 
-    seqMap = {
-      "goDirect": goDirectMap[profile],
-      "land": landMap[profile],
-      "loiter": loiterMap[profile],
-      "stop": stopMap[profile],
-      "picture": pictureMap[profile]
-    }
+    
 
     var seq = $(this).attr("data-sequence");
-    var seqFn = seqMap[seq];
-    var seqFnString = seqFn.toString();
+    // var seqFn = seqMap[seq];
+    // var seqFnString = seqFn.toString();
     return faye.publish("/sequence", {
-      seqFn: seqFnString,
-      seqName: seq,
+      // seqFn: seqFnString,
+      seq: seq,
       profile: profile
     });
   });

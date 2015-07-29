@@ -1,12 +1,3 @@
-Pet Drone
-======
-This branch has different emotional profiles to test out.
-
-The goal is to produce a drone that displays intention, feedback, and emotional state via visual 
-and audio cues. This currently includes body movement (drone's animation sequences), LED patterns,
-and sound (drone's propellor sounds).
-Currently modifying the browser UI so it's easier to use for Wizard of Oz experiments.
-
 Getting started
 ======
 Connect to your ar drone 2 via WLAN, then run node.server.js open up localhost:3001 and you're ready to go.
@@ -24,3 +15,19 @@ Dependencies
 You can install/update the node dependencies via `npm install -d`.
 Dependencies for client code are managed via bower ( https://github.com/twitter/bower ). 
 You need to have `ffmpeg` installed (it's used for the picture stuff)
+
+Screenshot
+========
+This is how it looks like in action:
+![drone browser in chrome](https://raw.github.com/functino/drone-browser/master/screenshot.png)
+
+TODO
+======
+- use getUserMedia/the webcam to control the drone (like magic xylophone...)
+- add a slider to make the speed/duration of actions configurable
+- toggle between takeoff/land buttons or disable takeoff button after takeoff...
+- mayby change the "recover" button to send a land command first (because otherwise the drone tries to start again...)
+- only show the recover button when the drone is in emergency mode
+- use canvas to draw angle-stuff or rotate the picture stream accordingly
+- get rid of the (sometimes) long lag of the picture stream 
+- makte it work without ffmpeg (skip the picture stuff then....)
