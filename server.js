@@ -1,6 +1,4 @@
 (function() {
-  var test = require('./public/test.js');
-
   var app, currentImg, drone, express, faye, imageSendingPaused, path, server, socket;
   express = require("express");
   faye = require("faye");
@@ -39,9 +37,11 @@
   });
   socket.subscribe("/sequence", function(cmd) {
     console.log('drone sequence: ' + cmd.profile + ' ' + cmd.seq);
-    var fn = test.seqFn(cmd.seq, cmd.profile);
+
+    var seq = require('./public/sequences.js');
+    var fn = seq.fn(cmd.seq, cmd.profile);
     fn(drone);
-    test.reset(drone);
+    seq.reset(drone);
     // eval(cmd.seqFn);
     // return seq();
   });
