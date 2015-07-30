@@ -25,6 +25,9 @@ body {
     padding: 50px;
     line-height: 120%;
 }
+#sequence {
+    text-align: center;
+}
 .buttons {
     text-align: center;
 }
