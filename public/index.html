@@ -47,7 +47,7 @@
                     <li data-action="animate" data-param="flipRight"><a href="#">flipRight</a></li>
                 </ul>                   
                     <input class="span1" id="duration" size="3" type="number" value="2" rel="tooltip" data-placement="bottom" title="Trigger animations. You can change the duration of an animation. It defaults to 2 seconds."> <span class="add-on"><i class="icon-time"></i></span>
-            </div>      -->           
+            </div>                 -->
         </div>    
     </div>
     <div id="batteryProgress" class="progress progress-success progress-striped" title="Battery status" rel="tooltip" data-placement="right">
@@ -89,38 +89,55 @@
                 <button class="btn" data-action="move" data-param="counterClockwise"><i class="icon-refresh"></i> counter-clockwise</button>
             </div>
         </div>
-        <div class="btn-toolbar" id="happy-actions"></div>
-    </div>
-    <div>
-        <h3>Precise Location</h3>
-        <div class="btn-group">
-            <button class="btn" data-sequence="goDirect">Go directly</button>
-            <button class="btn" data-sequence="land">Land</button>
-        </div>
-        <h3>Stop</h3>
-        <div class="btn-group">
-            <button class="btn" data-sequence="loiter">Loiter</button>
-            <button class="btn" data-sequence="stop">Stop</button>
-            <input id="counter" type="number" value="0"> 
-        </div>
-        <h3>Take picture</h3>
-        <div class="btn-group">
-            <button class="btn" data-sequence="picture">Picture Taken</button>
+        <div class="btn-toolbar" id="emotion-actions">
+            <div class="btn-group" id="happy">
+                <button class="btn" data-action="animate" data-param="yawShake">Yaw Shake</button>
+                <button class="btn" data-action="animate" data-param="thetaDance">Nod</button>
+                <button class="btn" data-action="animate" data-param="turnaround">Turnaround</button>
+            </div>
+            <div class="btn-group" id="grumpy">
+                <button class="btn" data-action="animate" data-param="phiDance">Shake</button>
+            </div>
+            <div class="btn-group" id="sad">
+                <button class="btn" data-action="animate" data-param="wave">Wobble</button>
+            </div>
         </div>
     </div>
-    <div>
-        <h3>Cross Lawn</h3>
-        <h4>Instructions:</h4>
-    </div>
-    <div>
-        <h3>Get Attention</h3>
-        <div class="btn-group">
-            <button class="btn">Acknowledge</button>
+    <div id="sequence">
+        <div>
+            <h3>Precise Location</h3>
+            <div class="btn-group">
+                <button class="btn" data-sequence="goDirect">Go directly</button>
+                <button class="btn" data-sequence="land">Land</button>
+            </div>
+            <h3>Stop</h3>
+            <div class="btn-group">
+                <button class="btn" data-sequence="loiter">Loiter</button>
+                <button class="btn" data-sequence="stop">Stop</button>
+                <input id="counter" type="number" value="0"> 
+            </div>
+            <h3>Take picture</h3>
+            <div class="btn-group">
+                <button class="btn" data-sequence="picture">Picture Taken</button>
+            </div>
         </div>
-    </div>
-    <div>
-        <h3>Up / Down / Further / Closer</h3>
-        <h4>Instructions:</h4>
+        <div>
+            <h3>Follow Drone</h3>
+            <div class="btn-group">
+                <button class="btn" data-sequence="crossLawn">Cross Lawn</button>
+            </div>
+        </div>
+        <div>
+            <h3>Get Attention</h3>
+            <h4 id="ack"></h4>
+            <div class="btn-group">
+                <button class="btn" data-sequence="ack">Acknowledge</button>
+            </div>
+        </div>
+        <div>
+            <h3>Up / Down / Further / Closer</h3>
+            <h4 id="directions"></h4>
+        </div>
     </div>
     <div id="stats">     
         <div>Battery: <span id="batteryPercentage">(Drone not connected)</span>%</div>
@@ -132,12 +149,8 @@
     </div>
     <script src="components/jquery/jquery.js"></script>
     <script src="/faye/client.js"></script>
-    <script src="components/bootstrap/js/bootstrap.min.js"></script>    
-    <script src="/land.js"></script>  
-    <script src="/godirect.js"></script>  
-    <script src="/loiter.js"></script>  
-    <script src="/stop.js"></script>    
-    <script src="/picture.js"></script>    
+    <script src="components/bootstrap/js/bootstrap.min.js"></script>      
+    <script src="/instructions.js"></script>    
     <script src="/client.js"></script>    
 </body>
 </html>

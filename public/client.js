@@ -1,7 +1,8 @@
 (function() {
-  var faye, keymap, speed, profileMovement, seqMap;
+  var faye, keymap, speed, seqMap;
   var profile = null;
   var maxSpeed = 1;
+  var ANIMATE_DUR = 2000;
   faye = new Faye.Client("/faye", {
     timeout: 120
   });
@@ -35,13 +36,23 @@
     };
   }
 
-  profileMovement = {
+  var profileHeight = {
+    "happy": "eye-level",
+    "grumpy": "waist-level",
+    "sad": "lower than takeoff"
+  }
+
+  var profileMovement = {
     "happy": {
-      speed: 0.6,
+      speed: 0.7,
       duration: 1000
     },
     "grumpy": {
-      speed: 0.2,
+      speed: 0.4,
+      duration: 500
+    },
+    "sad": {
+      speed: 0.1,
       duration: 500
     }
   }
@@ -146,11 +157,30 @@
     param: 0
   };
 
+  var profileInstructions = function(profile) {
+    document.getElementById("ack").innerHTML = ackMap[profile];
+    document.getElementById("cross-lawn").innerHTML = crossLawnMap[profile];
+    document.getElementById("directions").innerHTML = directionsMap[profile];
+
+    var emotionActions = document.getElementById('emotion-actions');
+    var children = emotionActions.children;
+    for (var i = 0; i < children.length; i++) {
+      var emotion = children[i];
+      if (emotion.id == profile) {
+        emotion.style.display='inline';
+      } else {
+        emotion.style.display='none'; 
+      }
+    }
+  };
 
   $("*[data-profile]").on("mousedown", function() {
     profile = $(this).attr("data-profile");
-    document.getElementById("prof").innerHTML = profile;
+    document.getElementById("prof").innerHTML = profile + ' [' + profileHeight[profile] + ']';
     maxSpeed = parseFloat($(this).attr("max-speed"));
+
+    profileInstructions(profile);
+
     return faye.publish("/profile", {
       profile: profile,
       maxSpeed: parseFloat($(this).attr("max-speed"))
@@ -166,11 +196,19 @@
     if ($(this).attr("data-mod") == "small") {
       movData.duration /= 2; // movement duration half as long
     }
-    return faye.publish("/drone/" + movData.action, {
-      duration: movData.duration,
-      action: movData.param,
-      speed: movData.speed,
-    });
+    if (movData.action == "move") {
+      return faye.publish("/drone/" + movData.action, {
+        duration: movData.duration,
+        action: movData.param,
+        speed: movData.speed,
+      });
+    } else { //animate
+      return faye.publish("/drone/animate", {
+        action: movData.param,
+        duration: ANIMATE_DUR
+      });
+    }
+    
   });
   $("*[data-action]").on("mouseup", function(ev) {
     if (movData.action == "move") {
@@ -184,21 +222,15 @@
     } else { //animate
       return faye.publish("/drone/animate", {
         action: movData.param,
-        duration: movData.duration
-      }) 
+        duration: ANIMATE_DUR
+      }); 
     }  
   });
 
   $("*[data-sequence]").on("mousedown", function() {
     pickProfile();
-
-    
-
     var seq = $(this).attr("data-sequence");
-    // var seqFn = seqMap[seq];
-    // var seqFnString = seqFn.toString();
     return faye.publish("/sequence", {
-      // seqFn: seqFnString,
       seq: seq,
       profile: profile
     });

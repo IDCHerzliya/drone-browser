@@ -18,6 +18,9 @@ body {
     margin-bottom: 0px;
     width: 20px;
 }
+#happy, #grumpy, #sad {
+    display: none;
+}
 #stats {
     position: absolute;
     left: 25%;
