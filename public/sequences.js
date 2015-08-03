@@ -1,3 +1,14 @@
+var landAndTakeoff = function(drone, landNum, takeoffNum) {
+  drone.after(landNum, function() {
+    console.log('land');
+    this.land();
+  })
+  .after(takeoffNum, function() {
+    console.log('takeoff');
+    this.takeoff();
+  })
+}
+
 ackMap = {
   "grumpy": function(drone) {
     drone.after(2000, function() {
@@ -21,15 +32,15 @@ ackMap = {
 
 crossLawnMap = {
   "grumpy": function(drone) {
-    for (var i = 0; i < 3; i++) {
-      drone.after(3000, function() {
+    for (var i = 0; i < 2; i++) {
+      drone.after(2000, function() {
         console.log('front');
         this.front(0.4);
       })
       .after(3000, function() {
         console.log('stop');
         this.stop();
-      });
+      })
     }
   },
   "happy": function(drone) {
@@ -40,19 +51,19 @@ crossLawnMap = {
     })
     .after(2000, function() {
       console.log('front, down');
-      this.down();
+      this.down(0.7);
     })
-    .after(1500, function() {
+    .after(1700, function() {
       console.log('stop');
       this.stop();
     })
     .after(1000, function() {
       console.log('turnaround');
-      this.animate('turnaround', 1600);
+      this.animate('turnaround', 1200);
     })
-    .after(1600, function() {
-      console.log('nod');
-      this.animate('thetaDance', 2000);
+    .after(1300, function() {
+      console.log('yaw shake');
+      this.animate('yawShake', 2000);
     }); 
   },
   "sad": function(drone) {
@@ -61,14 +72,7 @@ crossLawnMap = {
         console.log('front');
         this.front(0.1);
       })
-      .after(5000, function() {
-        console.log('land');
-        this.land();
-      })
-      .after(2000, function() {
-        console.log('takeoff');
-        this.takeoff();
-      })
+      landAndTakeoff(drone, 3000, 5000);
     }
   }
 }
@@ -115,19 +119,22 @@ goDirectMap = {
     })
   },
   "sad": function(drone) {
-    drone.after(0, function() {
-      console.log('forward');
-      this.front(0.1);
+    for (var i = 0; i < 3; i++) {
+      drone.after(3000, function() {
+        console.log('front');
+        this.front(0.1);
+      })
+      landAndTakeoff(drone, 5000, 5000);
+    }
+    drone.after(1000, function() {
+      console.log('turning');
+      this.counterClockwise(0.4);
     })
-    .after(5000, function() {
+    .after(3000, function() {
       console.log('stop');
       this.stop();
     })
-    .after(1000, function() {
-      console.log('turning');
-      this.counterClockwise(0.6);
-    })
-    .after(5000, function() {
+    .after(3000, function() {
       console.log('forward');
       this.front(0.1);
     })
@@ -197,20 +204,16 @@ loiterMap = {
       .after(100, function() {
         this.right(0.4);
       });
-    }
-    drone.after(0, function() {
-      console.log('end');
-      this.stop();
-    }, true);
+    };
   },
   "happy": function(drone) {
     console.log('turnaround');
     drone.animate('turnaround', 5000);
   },
   "sad": function(drone) {
-    console.log('wobble');
     for (var i = 0; i < 10; i++) {
       drone.after(0, function() {
+        console.log('wobble');
         drone.animate('wave', 1500);
       })
       .after(1600, function() {
@@ -278,21 +281,32 @@ stopMap = {
     });
   },
   "happy": function(drone) {
-    drone.after(1000, function() {
+    drone.after(100, function() {
       console.log('stop');
       this.stop();
+    })
+    .after(1000, function() {
       console.log('flip');
       this.animate('flipAhead', 15);
     })
+    .after(1000, function() {
+      console.log('stop');
+      this.stop();
+    });
   },
   "sad": function(drone) {
     drone.after(50, function() {
       console.log('stop');
-      this.stop();
-      this.clockwise(0.1);
+      this.stop();      
+    })
+    .after(1000, function() {
+      console.log('wobble');
+      this.animate('wave', 3000);
+    })
+    .after(3200, function() {
       console.log('land');
       this.land();
-    })
+    });
   }
 }
 

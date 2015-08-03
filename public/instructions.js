@@ -4,14 +4,14 @@ ackMap = {
   "sad": "Takes several calls, turns towards user, then wobbles"
 }
 
-// crossLawnMap = {
-//   "grumpy": "jerky, stepwise",
-//   "happy": "Races ahead, yaw shake when reaches end",
-//   "sad": "slow, fluid, lands a couple times"
-// }
-
 directionsMap = {
   "grumpy": "Doesn't want to get too close to user",
   "happy": "turnaround",
   "sad": "hardly goes up, lands often"
+}
+
+stopCounterMap = {
+  "grumpy": "3 times",
+  "happy": "1 time",
+  "sad": "2 times"
 }

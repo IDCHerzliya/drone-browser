@@ -16,7 +16,7 @@ body {
 }
 #counter {
     margin-bottom: 0px;
-    width: 20px;
+    width: 30px;
 }
 #happy, #grumpy, #sad {
     display: none;

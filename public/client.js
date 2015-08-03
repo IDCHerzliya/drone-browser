@@ -33,7 +33,7 @@
   var pickProfile = function () {
     if (profile == null) {
       return alert("pick profile");
-    };
+    }
   }
 
   var profileHeight = {
@@ -159,8 +159,8 @@
 
   var profileInstructions = function(profile) {
     document.getElementById("ack").innerHTML = ackMap[profile];
-    document.getElementById("cross-lawn").innerHTML = crossLawnMap[profile];
     document.getElementById("directions").innerHTML = directionsMap[profile];
+    document.getElementById("stop-counter").innerHTML = stopCounterMap[profile];
 
     var emotionActions = document.getElementById('emotion-actions');
     var children = emotionActions.children;
@@ -230,6 +230,10 @@
   $("*[data-sequence]").on("mousedown", function() {
     pickProfile();
     var seq = $(this).attr("data-sequence");
+    if (seq == "stop-counter") {
+      document.getElementById("counter").stepUp(1);
+      return;
+    }
     return faye.publish("/sequence", {
       seq: seq,
       profile: profile
