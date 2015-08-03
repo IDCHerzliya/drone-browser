@@ -32,7 +32,8 @@
 
   var pickProfile = function () {
     if (profile == null) {
-      return alert("pick profile");
+      alert("pick profile");
+      throw "pick profile";
     }
   }
 
