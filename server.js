@@ -38,12 +38,21 @@
   socket.subscribe("/sequence", function(cmd) {
     console.log('drone sequence: ' + cmd.profile + ' ' + cmd.seq);
 
+    if (cmd.seq == "360") {
+      console.log('360');
+      return drone.animate('turnaround', 1530);
+    }
+    if (cmd.seq == "calibrate") {
+      console.log('ftrim');
+      drone.ftrim();
+      drone.calibrate(0);
+      return console.log('calibrate');
+    }
+
     var seq = require('./public/sequences.js');
     var fn = seq.fn(cmd.seq, cmd.profile);
     fn(drone);
     seq.reset(drone);
-    // eval(cmd.seqFn);
-    // return seq();
   });
   server.listen(app.get("port"), function() {
     return console.log("Express server listening on port " + app.get("port"));

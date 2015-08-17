@@ -22,7 +22,7 @@ ackMap = {
   },
   "happy": function(drone) {
     console.log('nod');
-    this.animate('thetaDance', 2000);
+    drone.animate('thetaDance', 2000);
   },
   "sad": function(drone) {
     console.log('wobble');
@@ -45,19 +45,19 @@ crossLawnMap = {
   },
   "happy": function(drone) {
     drone.after(0, function() {
-      console.log('front, up');
-      this.up(0.5);
+      console.log('front, down');
+      this.down(1);
       this.front(0.7);
     })
-    .after(2000, function() {
-      console.log('front, down');
-      this.down(0.7);
+    .after(2300, function() {
+      console.log('front, up');
+      this.up(1);
     })
-    .after(1700, function() {
+    .after(2000, function() {
       console.log('stop');
       this.stop();
     })
-    .after(1000, function() {
+    .after(2000, function() {
       console.log('turnaround');
       this.animate('turnaround', 1200);
     })
@@ -67,12 +67,19 @@ crossLawnMap = {
     }); 
   },
   "sad": function(drone) {
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 2; i++) {
       drone.after(3000, function() {
         console.log('front');
-        this.front(0.1);
+        this.front(0.2);
       })
-      landAndTakeoff(drone, 3000, 5000);
+      .after(4000, function() {
+        console.log('wobble');        
+        this.animate('wave', 6000);
+      })
+      // .after(6000, function() {
+      //   this.land();
+      // })
+      landAndTakeoff(drone, 6000, 5000);
     }
   }
 }
@@ -105,7 +112,7 @@ goDirectMap = {
       console.log('forward');
       this.front(0.6);
     })
-    .after(3000, function() {
+    .after(3800, function() {
       console.log('turning');
       this.counterClockwise(1);
     })
@@ -119,14 +126,12 @@ goDirectMap = {
     })
   },
   "sad": function(drone) {
-    for (var i = 0; i < 3; i++) {
-      drone.after(3000, function() {
-        console.log('front');
-        this.front(0.1);
-      })
-      landAndTakeoff(drone, 5000, 5000);
-    }
-    drone.after(1000, function() {
+    drone.after(3000, function() {
+      console.log('front');
+      this.front(0.15);
+    })
+    landAndTakeoff(drone, 10000, 5000);
+    drone.after(3000, function() {
       console.log('turning');
       this.counterClockwise(0.4);
     })
@@ -138,7 +143,7 @@ goDirectMap = {
       console.log('forward');
       this.front(0.1);
     })
-    .after(5000, function() {
+    .after(3000, function() {
       console.log('stop');
       this.stop();
     })
@@ -189,7 +194,7 @@ landMap = {
 
 loiterMap = {
   "grumpy": function(drone) { 
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 5; i++) {
       drone.after(1000, function() {
         console.log('left');
         this.animate('phi30Deg', 30);
@@ -239,7 +244,7 @@ pictureMap = {
   "happy": function(drone) {
     drone.after(0, function() {
       console.log('turnaround');
-      this.animate('turnaround', 1200);
+      this.animate('turnaround', 1500); // perfect 360
     })
     .after(2000, function() {
       console.log('nod');
@@ -298,10 +303,6 @@ stopMap = {
     drone.after(50, function() {
       console.log('stop');
       this.stop();      
-    })
-    .after(1000, function() {
-      console.log('wobble');
-      this.animate('wave', 3000);
     })
     .after(3200, function() {
       console.log('land');

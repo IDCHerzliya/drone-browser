@@ -130,6 +130,7 @@
     }
   };
   speed = 0;
+
   $(document).keydown(function(ev) {
     var evData;
     if (keymap[ev.keyCode] == null) {
@@ -138,6 +139,15 @@
     ev.preventDefault();
     speed = speed >= maxSpeed ? maxSpeed : speed + 0.08 / (1 - speed);
     evData = keymap[ev.keyCode];
+    
+    if (profile == 'sad' && (evData.action == 'clockwise' || evData.action == 'counterClockwise')) { //speed up yaw for sad
+      return faye.publish("/drone/" + evData.ev, {
+        action: evData.action,
+        speed: 0.3,
+        duration: evData.duration
+      });
+    }
+
     return faye.publish("/drone/" + evData.ev, {
       action: evData.action,
       speed: speed,
@@ -160,7 +170,7 @@
 
   var profileInstructions = function(profile) {
     document.getElementById("ack").innerHTML = ackMap[profile];
-    document.getElementById("directions").innerHTML = directionsMap[profile];
+    // document.getElementById("directions").innerHTML = directionsMap[profile];
     document.getElementById("stop-counter").innerHTML = stopCounterMap[profile];
 
     var emotionActions = document.getElementById('emotion-actions');
@@ -233,6 +243,10 @@
     var seq = $(this).attr("data-sequence");
     if (seq == "stop-counter") {
       document.getElementById("counter").stepUp(1);
+      return;
+    }
+    if (seq == "stop-reset") {
+      document.getElementById("counter").value = 0;
       return;
     }
     return faye.publish("/sequence", {
